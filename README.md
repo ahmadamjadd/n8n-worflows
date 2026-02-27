@@ -20,11 +20,11 @@ An AI chatbot that helps freshers understand Team Foxtrot's codebase by searchin
 #### Data Ingestion (Parent-Child)
 Crawls all repos from GitHub org and embeds files into Pinecone.
 
-![Parent Workflow](FoxBrain_AI_Agent/Dataflow/dataflow-parent.png)
-![Child Workflow](FoxBrain_AI_Agent/Dataflow/dataflow-child.png)
+![Parent Workflow](FoxBrain_AI_Agent/foxtrot-dataflow-parent.png)
+![Child Workflow](FoxBrain_AI_Agent/foxtrot-dataflow-child.png)
 
 #### Google Drive Ingestion
-![Google Drive](FoxBrain_AI_Agent/Dataflow/dataflow-googledrive.png)
+![Google Drive](FoxBrain_AI_Agent/dataflow-google-drive.png)
 
 ---
 
@@ -36,7 +36,7 @@ Automatically logs NayaPay SMS transactions to Google Sheets using AI-powered da
 
 **Tech:** n8n, AWS EC2, Terraform, Google Gemini, Google Sheets
 
-![NayaPay Ledger](NayapayLedgerSystem/nayapay-ledger-workflow.png)
+![NayaPay Ledger](NayapayLedgerSystem/workflow.png)
 
 ---
 
@@ -57,9 +57,6 @@ Automates event registration by classifying attendees (Internal/External based o
 Bi-directional integration between ClickUp and Discord - notifies team members via Discord DM when tasks are assigned, and provides an AI assistant to fetch tasks.
 
 **Tech:** n8n, ClickUp API, Discord Bot, Google Gemini
-
-![ClickUp Task Created](Clickup_Integration_With_Discord_Bot/clickup-task-created.png)
-![ClickUp Find Task](Clickup_Integration_With_Discord_Bot/clickup-find-task.png)
 
 ---
 
