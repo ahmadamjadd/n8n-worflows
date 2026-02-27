@@ -1,0 +1,447 @@
+{
+  "name": "EventAutoConfirmation",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "### 1. Entry Point\nThis section captures the manual entry of the Student Name and Email. It acts as the trigger to start the automated registration sequence. Manual Trigger can be replaced by webhook trigger for any registration process",
+        "height": 304,
+        "width": 464,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -144
+      ],
+      "typeVersion": 1,
+      "id": "ed87fc05-6e62-4c7e-b88a-5e561dc27e64",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "### 2. Classification Logic\nAn IF Node checks whether the email contains `@giki.edu.pk`.\n\n- **True:** Tags the student as **Internal**\n- **False:** Tags the student as **External**\n\nThis allows for organized data management and targeted communication.",
+        "height": 560,
+        "width": 672,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        384,
+        -304
+      ],
+      "typeVersion": 1,
+      "id": "eb79417f-86a2-4a1f-abc4-91d3750d8936",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "### 3. Humanized Timing\nThe Wait Node introduces a brief pause. This ensures the student does not receive an instant robotic response, making the communication feel more natural and professional.",
+        "height": 384,
+        "width": 224,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1056,
+        -224
+      ],
+      "typeVersion": 1,
+      "id": "ef4745a0-c944-497f-bf13-5a0a6a05c78b",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "### 4. Communication\nAutomatically sends a personalized email with the subject **\"Registration Confirmed\"**.  \nIt pulls the student’s name directly from the data stream to personalize the message.",
+        "height": 384,
+        "width": 224
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1280,
+        -224
+      ],
+      "typeVersion": 1,
+      "id": "1915e5a8-326c-481e-b501-6ff85caa87f8",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "### 5. Record Keeping\nThe final step appends all data — **Name, Email, and the newly created Tag** — into a Google Sheet for real-time tracking of attendees.",
+        "height": 384,
+        "width": 256,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1504,
+        -224
+      ],
+      "typeVersion": 1,
+      "id": "2a622607-16ac-40ac-bab8-429d134937d9",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "dbe9a59a-6f12-44fe-a116-f0987b34f7e0",
+      "name": "Start: Manual Registration"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a0a6a7d3-2df2-47a6-8ebf-63cd0f1f6437",
+              "name": "Student Name",
+              "value": "Muhammad Ahmad Amjad",
+              "type": "string"
+            },
+            {
+              "id": "2022b6fb-260b-40c8-9b90-690a7676f96c",
+              "name": "Student Email",
+              "value": "2023361@giki.edu.pk",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        0
+      ],
+      "id": "98a56b79-a272-471e-a58d-fd230e939eea",
+      "name": "Initialize Student Data"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "e03a3b9a-6c51-4fca-b625-119bac50bce2",
+              "leftValue": "={{ $json['Student Email'] }}",
+              "rightValue": "@giki.edu.pk",
+              "operator": {
+                "type": "string",
+                "operation": "endsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        0
+      ],
+      "id": "95abe9a3-ac14-490f-a127-befb48a8da26",
+      "name": "Check for University Email"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e83bb93d-2046-4cad-88e7-63b4fbb74b4d",
+              "name": "Tag",
+              "value": "Internal",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        672,
+        -96
+      ],
+      "id": "2d2d8c23-1ac2-4e75-8c53-30eb5d7d77b3",
+      "name": "Assign 'Internal' Tag"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        896,
+        0
+      ],
+      "id": "7b762a9b-20d1-4941-8c86-249e2274f97d",
+      "name": "Consolidate Data"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f60c0451-661d-4341-aad2-5fc217a10647",
+              "name": "Tag",
+              "value": "External",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        672,
+        96
+      ],
+      "id": "3919e3eb-2914-46d8-bbff-13bfb6d2815d",
+      "name": "Assign 'External' Tag"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Initialize Student Data').item.json['Student Email'] }}",
+        "subject": "Registration Confirmed",
+        "emailType": "text",
+        "message": "=Dear {{ $('Initialize Student Data').item.json['Student Name'] }},\n\nThank you for registering for our AI Workshop at GIKI. We are excited to have you join us for this deep dive into the world of Artificial Intelligence.\n\nWe look forward to seeing you there!\n\nBest regards,\nGIK Institute",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1344,
+        0
+      ],
+      "id": "25abb228-8d7c-4bc0-81c3-f2642a535ba5",
+      "name": "Send Confirmation Gmail",
+      "webhookId": "47a0da90-b5f9-4a07-816d-c0e451cb599b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QYJrRuV1ktI17SHf",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1a9fpTNeTUEXj9TsCRRbgby38JL8h1ufoDbODukLI4wU",
+          "mode": "list",
+          "cachedResultName": "AI_Workshop",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a9fpTNeTUEXj9TsCRRbgby38JL8h1ufoDbODukLI4wU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a9fpTNeTUEXj9TsCRRbgby38JL8h1ufoDbODukLI4wU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Initialize Student Data').item.json['Student Name'] }}",
+            "Email": "={{ $('Initialize Student Data').item.json['Student Email'] }}",
+            "Tag": "={{ $('Consolidate Data').item.json.Tag }}"
+          },
+          "matchingColumns": [
+            "Name"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Tag",
+              "displayName": "Tag",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1568,
+        0
+      ],
+      "id": "86a2189d-2cd0-4c7d-b506-34bed5f32057",
+      "name": "Log to Google Sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1GmWYDKyggEBAWuE",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "82acb8bb-04b1-4308-aed1-95d711c9d0d2",
+      "name": "Delay Confirmation",
+      "webhookId": "74e03712-a7c8-459e-9611-eb77c17dfa94"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Start: Manual Registration": {
+      "main": [
+        [
+          {
+            "node": "Initialize Student Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Initialize Student Data": {
+      "main": [
+        [
+          {
+            "node": "Check for University Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for University Email": {
+      "main": [
+        [
+          {
+            "node": "Assign 'Internal' Tag",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Assign 'External' Tag",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assign 'Internal' Tag": {
+      "main": [
+        [
+          {
+            "node": "Consolidate Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consolidate Data": {
+      "main": [
+        [
+          {
+            "node": "Delay Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assign 'External' Tag": {
+      "main": [
+        [
+          {
+            "node": "Consolidate Data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Send Confirmation Gmail": {
+      "main": [
+        [
+          {
+            "node": "Log to Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to Google Sheet": {
+      "main": [
+        []
+      ]
+    },
+    "Delay Confirmation": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "9769fab6-cb0b-4103-b599-f997d52875bc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4b236d6a0553c9e875e34c327be292e58e9d17db4065ace6cec462abff30df1b"
+  },
+  "id": "EeX55nkYxcq7oL0M",
+  "tags": []
+}

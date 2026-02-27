@@ -1,0 +1,297 @@
+{
+  "name": "Nayapay-Ledger",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nayapay-sync",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -832,
+        16
+      ],
+      "id": "e9340ea9-83ec-4a3f-a409-d8a3262b3d3f",
+      "name": "Webhook",
+      "webhookId": "49affd88-3373-48b4-91cb-d1a75dc280a2"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are a financial data extraction expert. Your goal is to process NayaPay transaction notifications into a clean JSON format for automated bookkeeping.\n\n### Rules:\n1. Extract the \"Amount\" as a clean number (remove \"Rs.\", \"PKR\", and all commas).\n2. Extract the \"Recipient\" or \"Merchant\" name.\n3. Determine the \"Transaction_Type\" (e.g., Sent, Received, or Bill Payment).\n4. Extract the \"Time\" if provided.\n5. Output MUST be strictly valid JSON only. \n6. Do not include markdown code blocks (like ```json), explanations, or notes.",
+              "role": "model"
+            },
+            {
+              "content": "=Extract the financial details from this NayaPay notification:\n\nMessage: \"{{ $json.body.message }}\"\nTime: \"{{ $json.body.time }}\"\n\nReturn the data in this exact structure:\n{\n  \"amount\": 0,\n  \"recipient\": \"name\",\n  \"type\": \"type\",\n  \"time\": \"hour:minute\"\n}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -608,
+        16
+      ],
+      "id": "dea4ad0f-fe83-4dec-99d5-9ea55bb45fcd",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "iGxUIQIgjn2w3ENr",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "63f2aff3-8ad7-4f6e-99d1-be2bff21c60c",
+              "name": "Json-Transaction",
+              "value": "={{ JSON.parse($json.content.parts[0].text) }}",
+              "type": "object"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -240,
+        16
+      ],
+      "id": "1083c3bc-6b6e-40d9-b6d2-65c812c358b1",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1e4qf5-ubP95NQUXHBGNjBn7reDr2ZWgdss1hX_TeGUM",
+          "mode": "list",
+          "cachedResultName": "Nayapay-Ledger",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1e4qf5-ubP95NQUXHBGNjBn7reDr2ZWgdss1hX_TeGUM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Jan 2026",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1e4qf5-ubP95NQUXHBGNjBn7reDr2ZWgdss1hX_TeGUM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $json[\"Json-Transaction\"].time }}",
+            "Amount": "={{ $json[\"Json-Transaction\"].amount }}",
+            "Recipient": "={{ $json[\"Json-Transaction\"].recipient }}",
+            "Type": "={{ $json[\"Json-Transaction\"].type }}",
+            "Raw Message": "={{ $json.content.parts[0].text }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Amount",
+              "displayName": "Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Recipient",
+              "displayName": "Recipient",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Raw Message",
+              "displayName": "Raw Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        16,
+        16
+      ],
+      "id": "a14e929e-63a1-4976-89d5-4799398c2e0c",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "th3K7SkT4IS9YmZy",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "### 📥 Webhook (Entry Point)\n**Function:** Listens for NayaPay notification triggers.\n**Configuration:**\n- **URL:** Production URL (AWS Static IP).\n- **HTTP Method:** POST.\n- **Security:** Inbound traffic restricted via AWS Security Groups.",
+        "width": 480
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1200,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "d01b0ee3-ac75-4d4a-92b4-4f09dc5cba36",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "### 🧠 AI Extraction (Gemini)\n**Function:** Converts unstructured text into a JSON schema.\n**Configuration:**\n- **Model:** `gemini-1.5-flash`.\n- **Output:** Extracts `amount`, `recipient`, `type`, and `time`.\n- **Constraint:** Forced JSON format for downstream parsing.",
+        "width": 464
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -720,
+        224
+      ],
+      "typeVersion": 1,
+      "id": "72d199c5-6e04-4bdc-bc2e-69fdf7f6313c",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "### 🛠️ Data Serialization\n**Function:** Standardizes data for the spreadsheet.\n**Configuration:**\n- **Logic:** `JSON.parse()` converts AI string to object.\n- **Goal:** Type-casting strings to numbers for financial math.",
+        "width": 432
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -384,
+        -176
+      ],
+      "typeVersion": 1,
+      "id": "8331912f-b3b0-4660-959f-b32a68c3b4eb",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "### 📊 Google Sheets (Ledger)\n**Function:** Persistent monthly financial storage.\n**Configuration:**\n- **Analytics:** `=SUM(B:B)` formula for real-time totaling.",
+        "height": 128,
+        "width": 496
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        192
+      ],
+      "typeVersion": 1,
+      "id": "ce7bfb7c-2dd2-46f2-b2f5-c9a9a491bcdd",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "### 🎯 Expense Tracker Overview\n**Goal:** Automate NayaPay transaction logging from mobile notifications to Google Sheets using AI.\n**Stack:** n8n (Docker), AWS EC2 (t2.micro), Terraform, Google Gemini API.\n\n#### ⚙️ How It Works:\n* **Trigger:** Webhook receives POST data from phone (MacroDroid).\n* **AI Engine:** Gemini 1.5 Flash extracts structured data from raw SMS.\n* **Storage:** Dynamic monthly tabs in Google Sheets.",
+        "height": 240,
+        "width": 688
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -784,
+        -560
+      ],
+      "typeVersion": 1,
+      "id": "0429da00-a525-49c5-ba34-5ca7bb44ad9b",
+      "name": "Sticky Note4"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "be3f4652-f891-4a59-ac9b-4457742b9bb4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8ff464a09f5ab64835aba17ed169a2ff50823812f88610000779520a0d457b8c"
+  },
+  "id": "NDT-Om6iWJlIB9PN1sjXb",
+  "tags": []
+}
