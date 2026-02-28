@@ -40,6 +40,11 @@ Parent (Lists Repos) → Child (Lists Branches) → GrandChild (Fetches & Embeds
 
 ![GrandChild Workflow](FoxBrain_AI_Agent/foxtrot-dataflow-GrandChild.png)
 
+#### Live GitHub Commit Sync
+Automatically keeps the knowledge base up-to-date. When new commits are pushed to any repo, this workflow triggers via webhook, deletes outdated vectors from Pinecone, and embeds the fresh code - ensuring FoxBrain always has the latest codebase.
+
+![Live GitHub Sync](FoxBrain_AI_Agent/Live_GitHub_Commit_Pinecone_Update.png)
+
 #### Google Drive Ingestion
 Ingests documentation files from Google Drive into the vector database.
 
