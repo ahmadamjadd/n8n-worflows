@@ -74,13 +74,31 @@ Automates event registration by classifying attendees (Internal/External based o
 
 ---
 
-## 🔗 ClickUp Discord Integration
+## 🤖 Discord-ClickUp-AI Bot
 
-> 🚧 **Under Development**
+**AI-Powered Discord Bot for Team Foxtrot's Task Management**
 
-Bi-directional integration between ClickUp and Discord - notifies team members via Discord DM when tasks are assigned, and provides an AI assistant to fetch tasks.
+A Discord bot that integrates with ClickUp to help team members easily access their tasks and get notified when new tasks are assigned. Works as both a general-purpose chatbot and a task management assistant.
 
-**Tech:** n8n, ClickUp API, Discord Bot, Google Gemini
+**Tech:** n8n, ClickUp API, Discord Bot, Google Gemini, Google Sheets
+
+### Workflows
+
+#### AI Chatbot Agent
+A conversational Discord bot powered by Gemini. Team members can DM the bot to ask general questions or request their ClickUp tasks. The bot looks up the user's ClickUp ID from Google Sheets and uses an AI agent to autonomously fetch and format their tasks when requested.
+
+![Discord Bot Agent](Discord-Clickup-Bot/Discordbot_agent.png)
+
+#### Task Creation Notifier
+Automatically notifies team members via Discord DM when a new task is created and assigned to them in ClickUp. Cross-references user email with Discord ID via Google Sheets, fetches full task details, and sends a formatted notification.
+
+![Task Creation](Discord-Clickup-Bot/TaskCreation.png)
+
+### Examples
+
+![Discord Bot Example](Discord-Clickup-Bot/DiscordBotExample.jpeg)
+
+![Task Notification Example](Discord-Clickup-Bot/TaskCreatedExample.jpeg)
 
 ---
 
