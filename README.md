@@ -94,6 +94,23 @@ Automatically notifies team members via Discord DM when a new task is created an
 
 ![Task Creation](Discord-Clickup-AI-Bot/TaskCreation.png)
 
+---
+
+## 📱 NonPTA HackAgent
+
+![NonPTA HackAgent Workflow](NonPTA_HackAgent/NonPTA_HackAgent.png)
+
+**Problem Statement:** Using a non-PTA iPhone in Pakistan creates a major communication gap. High taxation fees force users to keep a secondary Android phone for cellular services, but managing two devices is inefficient and often leads to missing urgent SMS or calls on the secondary phone while active on the primary one.
+
+NonPTA HackAgent automates two-way communication between Discord and a phone gateway:
+
+- Takes a Discord DM, uses a Gemini AI agent to extract recipient + message, and triggers an SMS via MacroDroid.
+- Receives SMS/call callbacks from MacroDroid via webhook and forwards clean notifications back to Discord.
+- Uses an integrated Google Contacts tool to resolve names into phone numbers when needed.
+
+**Flow:** Discord DM → AI Agent (Gemini + Contacts Tool) → MacroDroid API, and Webhook Callback → Discord Notification
+
+**Tech:** n8n, Google Gemini, Google Contacts, MacroDroid, Discord Bot, HTTP Webhooks
 
 ## 📄 License
 

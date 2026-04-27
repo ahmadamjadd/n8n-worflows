@@ -1,0 +1,304 @@
+{
+  "name": "NonPTA_HackAgent",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.content }}",
+        "options": {
+          "systemMessage": "You are an SMS routing assistant. Your job is to parse a Discord message and extract TWO things:\n1. **The phone number** to send the SMS to\n2. **The message content** to send\n\n## Rules:\n\n### Rule 1: Detect if a PHONE NUMBER is provided directly\n- A phone number is any string of digits (with optional +, -, spaces, or parentheses) that looks like a phone number (at least 7 digits).\n- Examples: 03001234567, +923001234567, 0300-1234567, (0300) 1234567\n- If the user provides a phone number directly, DO NOT use the Google Contacts tool. Just extract the number and the message.\n\n### Rule 2: Detect if a CONTACT NAME is provided\n- If the user provides a name (not a number), use the Google Contacts tool to search for that contact and get their phone number.\n- Search using the name the user provided.\n- If the contact is found, use the phone number from the contact.\n- If the contact is NOT found, respond with: {\"error\": \"Contact not found\"}\n\n### Rule 3: Extract the message\n- Everything that is NOT the phone number or contact name is the message content.\n- The user may format their input in ANY way. Examples:\n  - \"Ahmad\\nHello how are you\" → contact=Ahmad, message=Hello how are you\n  - \"Send hello to 03001234567\" → number=03001234567, message=hello\n  - \"03001234567 Hey bro whats up\" → number=03001234567, message=Hey bro whats up\n  - \"Tell Ahmad that I will be late\" → contact=Ahmad, message=I will be late\n  - \"Message 03001234567: Meeting at 5pm\" → number=03001234567, message=Meeting at 5pm\n  - \"Mama\\nI'll be home late\" → contact=Mama, message=I'll be home late\n  - \"03459876543\\nPick up milk\" → number=03459876543, message=Pick up milk\n  - \"send sms to ali saying come home\" → contact=ali, message=come home\n\n### Rule 4: Output format\nYou MUST respond with ONLY a valid JSON object, nothing else. No markdown, no explanation, just the JSON:\n{\"number\": \"<phone_number>\", \"message\": \"<message_text>\"}\n\nIf using Google Contacts and the contact has multiple numbers, prefer the mobile number.\nAlways clean the phone number to include only digits and an optional leading +."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -528,
+        240
+      ],
+      "id": "667fb0d6-8f9a-4898-a578-f2ea067a68fd",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "content": "## Incoming Request\nTrigger receives Discord DM and passes it into the AI chain.",
+        "height": 362,
+        "width": 320,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1056,
+        48
+      ],
+      "id": "4294f74e-7d52-4a37-ae54-143376e60bf7",
+      "name": "Note - Incoming Request"
+    },
+    {
+      "parameters": {
+        "content": "## AI Pipeline\nGoogle Gemini parses the instruction.\nGoogle Contacts is used as a tool when a name is provided instead of a number.\n\nOutput is strict JSON: { number, message }",
+        "height": 584,
+        "width": 560,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -736,
+        48
+      ],
+      "id": "7e207773-70fc-47c4-8beb-69505dd0b97b",
+      "name": "Note - AI Pipeline"
+    },
+    {
+      "parameters": {
+        "content": "## Response\nParsed data is sent to your SMS endpoint\nand webhook updates are sent back to Discord.",
+        "height": 378,
+        "width": 300,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        48
+      ],
+      "id": "25535e08-eb6e-4911-82f3-81731fd989f1",
+      "name": "Note - Response"
+    },
+    {
+      "parameters": {
+        "content": "# NonPTA HackAgent\n",
+        "height": 80,
+        "width": 352,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1056,
+        -96
+      ],
+      "id": "43857bcc-52d2-454e-b244-46d2ca52987a",
+      "name": "Note - Screenshot"
+    },
+    {
+      "parameters": {
+        "type": "direct-message",
+        "pattern": "regex",
+        "value": ".*",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-discord-trigger.discordTrigger",
+      "typeVersion": 1,
+      "position": [
+        -944,
+        240
+      ],
+      "id": "c5f76d23-0c32-4ece-8e4e-fcdcff80a398",
+      "name": "Discord DM Input"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        464
+      ],
+      "id": "365b036f-bd07-4999-8165-04d873c70a78",
+      "name": "LLM - Gemini Parser"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 3,
+        "fields": [
+          "names",
+          "phoneNumbers"
+        ],
+        "useQuery": true,
+        "query": "={{ $fromAI('contactName', 'The contact name to search for') }}"
+      },
+      "type": "n8n-nodes-base.googleContactsTool",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        480
+      ],
+      "id": "1f0672ac-7e31-4dbd-a251-745c12dc63ec",
+      "name": "Tool - Contact Lookup"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://example.com/sms-endpoint",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ JSON.parse($json.output).number }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ JSON.parse($json.output).message }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -64,
+        240
+      ],
+      "id": "8d19a08f-35c0-40c8-ba10-56693f833118",
+      "name": "Send SMS API"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "replace-with-unique-webhook-path",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        144,
+        736
+      ],
+      "id": "f5de6176-0746-4df2-862e-049abecbe043",
+      "name": "Trigger - SMS/Call Callback",
+      "webhookId": "replace-with-unique-webhook-path"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "guildId": {
+          "__rl": true,
+          "value": "DISCORD_GUILD_ID",
+          "mode": "id"
+        },
+        "sendTo": "user",
+        "userId": {
+          "__rl": true,
+          "value": "DISCORD_USER_ID",
+          "mode": "id"
+        },
+        "content": "={{ $json.body.message ? '📩 **NEW MESSAGE**' : '📞 **CALL ALERT**' }}\n---\n**Contact:** {{ $json.body.name }} \n**Number:** {{ $json.body.number }}\n\n{{ $json.body.message ? '**Content:** ' + $json.body.message : '_Incoming or Missed Voice Call_' }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        464,
+        736
+      ],
+      "id": "66d1926d-4f00-4ee9-b157-7a5a08fe1aff",
+      "name": "Action - Notify Discord"
+    },
+    {
+      "parameters": {
+        "content": "## Incoming Callback\nReceives callback from phone/SMS gateway.\n\nHandles:\n\n- New SMS\n- Missed or incoming call events\n- Sender metadata (name, number)",
+        "height": 432,
+        "width": 320
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        48,
+        480
+      ],
+      "typeVersion": 1,
+      "id": "8a9cc828-f5ba-43b2-a1c0-4372625d37d8",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Discord Notification\nFormats event into a readable Discord alert.\n\nSends:\n\n- Event type (SMS or call)\n- Sender name and number\n- Message body (if available)",
+        "height": 432,
+        "width": 320,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        368,
+        480
+      ],
+      "typeVersion": 1,
+      "id": "d7954ea7-f3bd-4ef7-a1e6-09d6cfd597fe",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send SMS API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord DM Input": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM - Gemini Parser": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool - Contact Lookup": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger - SMS/Call Callback": {
+      "main": [
+        [
+          {
+            "node": "Action - Notify Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "b088c9dd-0768-4503-a3a9-8a56c37654e2",
+  "meta": {},
+  "id": "NH4bGv82w2XJ6KbE",
+  "tags": []
+}
